@@ -4,26 +4,27 @@ import random
 
 
 # Basic configurations:
-plt.rcParams.update({'font.size': 14, 'figure.figsize': (6, 4.5)})
+plt.rcParams.update({'font.size': 14, 'figure.figsize': (8, 6)})
 np.random.seed(0)
 random.seed(0)
 
 
-def create_dataset(mean_array, sigma_array, n_regs):
+def create_dataset(mean_array, sigma_array, n_samples=1000):
     """
     This definitions generates a random dataset based on
     gaussian distributions.
     """
 
     # Auxiliar variables:
+    assert mean_array.shape[0] == sigma_array.shape[0], f"mean_array and sigma_array must be the same size"
     n_classes = mean_array.shape[0]
     n_features = mean_array.shape[1]
-    n_regs_class = int(n_regs/n_classes)
+    samples_per_class = int(n_samples/n_classes)
 
     ds = {"data": None,
           "target": None,
           "target_names": np.array(["Class " + str(t + 1) for t in range(n_classes)]),
-          "feature_names": np.array(["$x_{}$".format(str(t + 1)) for t in range(n_features)])}
+          "feature_names": np.array(["x{}".format(str(t + 1)) for t in range(n_features)])}
 
     # Innitializing X and y arrays:
     X = []
@@ -33,14 +34,14 @@ def create_dataset(mean_array, sigma_array, n_regs):
         for feat_index in range(n_features):
             mu = mean_array[c_index][feat_index]
             sigma = sigma_array[c_index][feat_index]
-            class_feats.append(np.random.normal(mu, sigma, n_regs_class))
+            class_feats.append(np.random.normal(mu, sigma, samples_per_class))
         class_feats = np.array(class_feats)
         # Concatenating the features array:
         if X == []:
             X = class_feats.transpose()
         else:
             X = np.concatenate((X, class_feats.transpose()), axis=0)
-        y += [c_index for i in range(n_regs_class)]
+        y += [c_index for i in range(samples_per_class)]
 
     ds["data"] = X
     ds["target"] = np.array(y, dtype='int32')
@@ -94,8 +95,8 @@ def plot_dataset(ds, feat_index=(0, 1), labeled=True, fig_name=None, test_points
         plt.xlabel(ds['feature_names'][feat_index[0]])
         plt.ylabel(ds['feature_names'][feat_index[1]])
     else:
-        plt.xlabel('$x_{}$'.format(str(feat_index[0] + 1)))
-        plt.ylabel('$x_{}$'.format(str(feat_index[1] + 1)))
+        plt.xlabel('x{}'.format(str(feat_index[0] + 1)))
+        plt.ylabel('x{}'.format(str(feat_index[1] + 1)))
     # Adding the classes labels to the legend:
     if labeled is True:
         ncol = min([len(class_keys_list), 3])

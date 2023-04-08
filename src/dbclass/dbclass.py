@@ -3,9 +3,9 @@ import numpy as np
 # My libraries:
 
 
-class PGC():
+class DBCLASS():
     """
-    PGC: Probabilistic Gaussian Classifier.
+    Densitiy-based classification (DBCLASS) is a probabilistic Gaussian Classifier.
     """
 
     def __init__(self, pgc=None, prob_thold=0.5):
@@ -13,38 +13,26 @@ class PGC():
         """
         self.pgc = pgc
         self.prob_thold = prob_thold
+        self.target_names = None
+        self.feature_names = None
 
-    def fit(self, ds):
+    def fit(self, X, y, target_names=None, feature_names=None):
         """
         This definition models the classes available in the dataset to
         gaussians , by feature, in order to represent each feature separately.
         """
-        
-        if 'feature_names' in ds:
-            self.feature_names = ds['feature_names']
+        if target_names:
+            self.target_names = target_names
         else:
-            self.feature_names = np.array(["$x_{}$".format(str(t + 1)) for t in np.unique(ds['target'])])
-
-        self.target_names = ds['target_names']
+            self.target_names = np.sort(np.unique(y))
+        if feature_names:
+            self.feature_names = feature_names
+        else:
+            self.feature_names = np.array(["x{}".format(str(i + 1)) for i in range(X.shape[1])])
         
         # Fitting the PGC to the data:
         pgc = {}
-        data = self.split_classes(ds)
-        for class_target in data.keys():
-            pgc[class_target] = {}
-            pgc[class_target]['mu'] = np.mean(data[class_target], axis=0)
-            pgc[class_target]['sigma'] = np.std(data[class_target], axis=0)
-        self.pgc = pgc
-
-    def fitxy(self, X_train, y_train):
-        """
-        This definition models the classes available in the dataset to
-        gaussians , by feature, in order to represent each feature separately.
-        """
-        
-        # Fitting the PGC to the data:
-        pgc = {}
-        data = self.split_classes({"data": X_train, "target": y_train})
+        data = self.split_classes({"data": X, "target": y})
         for class_target in data.keys():
             pgc[class_target] = {}
             pgc[class_target]['mu'] = np.mean(data[class_target], axis=0)
@@ -62,7 +50,7 @@ class PGC():
     
         return data
 
-    def predict(self, X, prob_thold=None, return_labels=True, noclass_label="Unknown"):
+    def predict(self, X, prob_thold=None, return_labels=True, unk_class_label="Unknown"):
         """
         Given a set of data points, this definition attemps to predict the most
         appropriate label.
@@ -74,7 +62,7 @@ class PGC():
         n_samples = X.shape[0]
         y_scores = np.zeros(n_samples)
         y_prediction_targets = -np.ones(n_samples, dtype=int)
-        y_prediction_labels = np.array([noclass_label for x in range(n_samples)])
+        y_prediction_labels = np.array([unk_class_label for x in range(n_samples)])
 
         for n, reg in enumerate(X):
             for class_target in self.pgc.keys():

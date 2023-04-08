@@ -7,7 +7,7 @@ from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 # My libraries:
 import dataset.dataset as dtset
-import dbclass.dbclass as DBclass
+from dbclass.dbclass import DBCLASS
 
 
 def cross_validation_trainning(dbclass, ds_train, ds_test, prob_thold_list=[], pca_test=False):
@@ -27,7 +27,7 @@ def cross_validation_trainning(dbclass, ds_train, ds_test, prob_thold_list=[], p
     best_prob_thold = 0
     best_metrics = {}
 
-    dbclass.fit(ds_train)
+    dbclass.fit(ds_train['data'], ds_train['target'])
     for t_index, prob_thold in enumerate(prob_thold_list):
         y_pred, y_scores = dbclass.predict(ds_test['data'], prob_thold, return_labels=False)
         confusion_matrix = build_confusion_matrix(ds_test['target'], y_pred, labels=dbclass.pgc.keys())
@@ -172,7 +172,7 @@ def perform_pca_test(ds, pca_limit=200):
         ds_train, ds_test = dtset.split_data(ds_pca, prop_train=0.8)
     
         # Trainning the model using cross validation in the trainning dataset:
-        dbclass = DBclass.PGC()
+        dbclass = DBCLASS()
         prob_thold_list = np.arange(0.45, 0.55, 0.01)
         best_prob_thold, class_metrics = cross_validation_trainning(dbclass, ds_train, ds_test, prob_thold_list, pca_test=True)
         if class_metrics['confidence'] > max_confidence:
@@ -196,6 +196,7 @@ def dbclass_model_test(dbclass, ds, noclass_label="Unknown"):
 
     print('\nConfusion matrix:')
     print(confusion_matrix)
+    print('\nIndex and Target label:')
     for index, tgt_name in enumerate(ds['target_names']):
         print('Index:', index,'Label:', tgt_name)
     print("\nProbability score threshold:", dbclass.prob_thold)

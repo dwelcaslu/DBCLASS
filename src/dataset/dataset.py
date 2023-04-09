@@ -49,7 +49,8 @@ def create_dataset(mean_array, sigma_array, n_samples=1000):
     return ds
 
 
-def plot_dataset(ds, feat_index=(0, 1), labeled=True, fig_name=None, test_points=[]):
+def plot_dataset(ds, feat_index=(0, 1), labeled=True, fig_name=None, figsize=(8, 6),
+                 test_points=[]):
     """
     This definition plots the dataset, labeled by class or not.
     """
@@ -70,7 +71,8 @@ def plot_dataset(ds, feat_index=(0, 1), labeled=True, fig_name=None, test_points
 
     # Figure adjustments:
     plt.close(fig_name)
-    plt.figure(fig_name)
+    plt.figure(fig_name, figsize=figsize)
+    plt.title(fig_name)
 
     class_keys_list = [key for key in data.keys()]
     class_keys_list.sort()

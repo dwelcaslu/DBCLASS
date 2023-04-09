@@ -8,24 +8,25 @@ class DBCLASS():
     Densitiy-based classification (DBCLASS) is a probabilistic Gaussian Classifier.
     """
 
-    def __init__(self, pgc=None, prob_thold=0.5):
+    def __init__(self, pgc=None, target_names=None, feature_names=None, prob_thold=0.5, unk_class_label = "Unknown"):
         """
         """
         self.pgc = pgc
+        self.target_names = target_names
+        self.feature_names = feature_names
         self.prob_thold = prob_thold
-        self.target_names = None
-        self.feature_names = None
+        self.unk_class_label = unk_class_label
 
     def fit(self, X, y, target_names=None, feature_names=None):
         """
         This definition models the classes available in the dataset to
         gaussians , by feature, in order to represent each feature separately.
         """
-        if target_names:
+        if target_names is not None:
             self.target_names = target_names
         else:
             self.target_names = np.sort(np.unique(y))
-        if feature_names:
+        if feature_names is not None:
             self.feature_names = feature_names
         else:
             self.feature_names = np.array(["x{}".format(str(i + 1)) for i in range(X.shape[1])])
@@ -43,11 +44,9 @@ class DBCLASS():
         """
         This definition splits the data set between the classes.
         """
-    
         data = {}
         for target in np.unique(ds['target']):
             data[target] = ds['data'][np.where(ds['target'] == target)]
-    
         return data
 
     def predict(self, X, prob_thold=None, return_labels=True, unk_class_label="Unknown"):
@@ -58,6 +57,7 @@ class DBCLASS():
 
         if prob_thold is None:
             prob_thold = self.prob_thold
+        self.unk_class_label = unk_class_label
 
         n_samples = X.shape[0]
         y_scores = np.zeros(n_samples)

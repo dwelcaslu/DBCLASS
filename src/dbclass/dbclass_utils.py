@@ -1,13 +1,16 @@
 # Third-party libraries:
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
+import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.metrics import classification_report
-from sklearn.preprocessing import StandardScaler
 # My libraries:
 import dataset.dataset as dtset
 from dbclass.dbclass import DBCLASS
+
+
+# Basic configurations:
+plt.rcParams.update({'font.size': 14, 'figure.figsize': (8, 6)})
 
 
 def cross_validation_trainning(dbclass, ds_train, ds_test, prob_thold_list=[], pca_test=False):
@@ -61,7 +64,7 @@ def cross_validation_trainning(dbclass, ds_train, ds_test, prob_thold_list=[], p
     return best_prob_thold, best_metrics
 
 
-def build_confusion_matrix(y_true, y_pred, labels=[], percent=True):
+def build_confusion_matrix(y_true, y_pred, labels=[], normalize=True):
     """
     """
 
@@ -74,8 +77,8 @@ def build_confusion_matrix(y_true, y_pred, labels=[], percent=True):
     for y, y_hat in zip(y_true, y_pred):
         confusion_matrix[y][y_hat] += 1
 
-    if percent is True:
-        percent_convert = 100/len(y_true)
+    if normalize is True:
+        percent_convert = 1/len(y_true)
         confusion_matrix = np.round(confusion_matrix*(percent_convert), 2)
 
     return confusion_matrix
@@ -184,7 +187,7 @@ def perform_pca_test(ds, pca_limit=200):
     return n_components_best, max_confidence
 
 
-def dbclass_model_test(dbclass, ds, noclass_label="Unknown"):
+def dbclass_model_test(dbclass, ds, noclass_label="Unknown", cmap='Blues'):
     """
     """
 
@@ -195,7 +198,18 @@ def dbclass_model_test(dbclass, ds, noclass_label="Unknown"):
     ds_pred = print_classification_report(ds, y_pred, noclass_label)
 
     print('\nConfusion matrix:')
-    print(confusion_matrix)
+    vmin = min([0, confusion_matrix.min()])
+    vmax = max([confusion_matrix.max()])    
+    plt.figure()
+    sns.heatmap(confusion_matrix, annot=np.round(confusion_matrix, 2), cmap=cmap, vmin=vmin, vmax=vmax)
+    target_names = [str(x) for x in dbclass.target_names] + [dbclass.unk_class_label]
+    target_idxs = [i+0.5 for i in range(len(target_names))]
+    plt.xticks(target_idxs, target_names, rotation=-90)
+    plt.yticks(target_idxs, target_names, rotation=0)
+    plt.tight_layout()
+    plt.show()
+
+
     print('\nIndex and Target label:')
     for index, tgt_name in enumerate(ds['target_names']):
         print('Index:', index,'Label:', tgt_name)

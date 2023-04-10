@@ -1,22 +1,30 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "db-classifier"
-version = "0.0.1"
-authors = [
-  { name="Weld Lucas Cunha", email="cunha.lucas012@gmail.com" },
-]
+version = "0.0.2"
 description = "A Probabilistic Approach to Multiclass Classification with Unknown Instances"
 readme = "README.md"
 requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+  { name="Weld Lucas Cunha", email="cunha.lucas012@gmail.com" },
+]
+maintainers = [
+  { name="Weld Lucas Cunha", email="cunha.lucas012@gmail.com" }, # Optional
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
 
 [project.urls]
 "Homepage" = "https://github.com/dwelcaslu/DBCLASS"
 "Bug Tracker" = "https://github.com/dwelcaslu/DBCLASS/issues"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

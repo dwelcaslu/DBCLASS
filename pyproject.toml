@@ -1,6 +1,6 @@
 [project]
 name = "db-classifier"
-version = "0.0.2"
+version = "0.0.4"
 description = "A Probabilistic Approach to Multiclass Classification with Unknown Instances"
 readme = "README.md"
 requires-python = ">=3.7"
